@@ -5,8 +5,9 @@ from browserstack.local import Local, BrowserStackLocalError
 class TestLocal(unittest.TestCase):
     def setUp(self):
         mock_readline = MagicMock(return_value='Press Ctrl-C to exit')
+        mock_poll = MagicMock(return_value=None)
         mock_stdout = Mock(readline=mock_readline)
-        subprocess.Popen =  MagicMock(return_value=Mock(stdout=mock_stdout))
+        subprocess.Popen = MagicMock(return_value=Mock(stdout=mock_stdout, poll=mock_poll))
         self.local = Local(os.environ['BROWSERSTACK_KEY'])
 
     def tearDown(self):
@@ -50,3 +51,8 @@ class TestLocal(unittest.TestCase):
 
     def test_invalid_option(self):
         self.assertRaises(BrowserStackLocalError, lambda: self.local.start(random=True))
+
+    def test_running(self):
+        self.assertFalse(self.local.is_running())
+        self.local.start()
+        self.assertTrue(self.local.is_running())

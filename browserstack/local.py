@@ -39,6 +39,11 @@ class Local:
             elif line.strip() == 'Press Ctrl-C to exit':
                 break
 
+    def is_running(self):
+        if (hasattr(self, 'proc')):
+            return True if self.proc.poll() is None else False
+        return False
+
     def __add_arg(self, key, value):
         if key == 'verbose' and value:
             self.options['verbose'] = '-v'
@@ -69,5 +74,5 @@ class Local:
             raise BrowserStackLocalError('Attempted to pass invalid option to binary')
 
     def stop(self):
-        if hasattr(self, 'proc'):
+        if self.is_running():
             self.proc.terminate()
