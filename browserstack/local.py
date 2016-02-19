@@ -1,9 +1,6 @@
 import subprocess
 from browserstack.local_binary import LocalBinary
-
-class BrowserStackLocalError(Exception):
-    def __init__(self, message):
-        super(Exception, self).__init__(message)
+from browserstack.bserrors import BrowserStackLocalError
 
 class Local:
     def __init__(self, key, binary_path=None):
