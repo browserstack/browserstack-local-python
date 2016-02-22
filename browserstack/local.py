@@ -3,7 +3,7 @@ from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
 
 class Local:
-    def __init__(self, key, binary_path=None):
+    def __init__(self, key=None, binary_path=None):
         if binary_path is None:
             self.binary_path = LocalBinary().get_binary()
         else:
