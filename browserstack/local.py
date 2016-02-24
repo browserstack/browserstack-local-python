@@ -45,11 +45,11 @@ class Local:
           break
 
     while True:
-      if self.is_running():
+      if self.isRunning():
         break
       time.sleep(1)
 
-  def is_running(self):
+  def isRunning(self):
     if (hasattr(self, 'proc')):
       return True if self.proc.poll() is None else False
     return False
@@ -91,7 +91,7 @@ class Local:
     try:
       self.proc.terminate()
       while True:
-        if not self.is_running():
+        if not self.isRunning():
           break
         time.sleep(1)
     except Exception as e:

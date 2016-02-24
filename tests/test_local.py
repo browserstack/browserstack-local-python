@@ -48,6 +48,6 @@ class TestLocal(unittest.TestCase):
     self.assertRaises(BrowserStackLocalError, lambda: self.local.start(random=True))
 
   def test_running(self):
-    self.assertFalse(self.local.is_running())
+    self.assertFalse(self.local.isRunning())
     self.local.start()
-    self.assertTrue(self.local.is_running())
+    self.assertTrue(self.local.isRunning())
