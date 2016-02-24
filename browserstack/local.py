@@ -50,18 +50,9 @@ class Local:
       time.sleep(1)
 
   def is_running(self):
-    try:
-      response = urllib2.urlopen('http://bs-local.com:45691/check')
-    except urllib2.URLError:
-      return False
-
-    data = ''
-    while True:
-      chunk = response.read(8192)
-      if not chunk:
-        break
-      data += chunk
-    return 'running' in data
+    if (hasattr(self, 'proc')):
+      return True if self.proc.poll() is None else False
+    return False
 
   def __add_arg(self, key, value):
     if key == 'verbose' and value:
