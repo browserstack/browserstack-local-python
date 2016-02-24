@@ -26,10 +26,10 @@ class Local:
     for key, value in kwargs.iteritems():
       self.__add_arg(key, value)
     
-    if self.options['binary_path'] is None:
-      self.binary_path = LocalBinary().get_binary()
-    else:
+    if 'binarypath' in self.options:
       self.binary_path = binary_path
+    else:
+      self.binary_path = LocalBinary().get_binary()
 
     if "onlyCommand" in kwargs and kwargs["onlyCommand"]: 
       return
@@ -63,7 +63,7 @@ class Local:
       self.options['force'] = '-force'
     elif key == 'only' and value:
       self.options['only'] = '-only'
-    elif key == 'only_automate' and value:
+    elif key == 'onlyAutomate' and value:
       self.options['only_automate'] = '-onlyAutomate'
     elif key == 'forcelocal' and value:
       self.options['forcelocal'] = '-forcelocal'
