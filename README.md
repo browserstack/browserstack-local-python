@@ -34,7 +34,7 @@ pip install browserstack-local
 * `localIdentifier`: If doing simultaneous multiple local testing connections, set this uniquely for different processes
 * `hosts`: List of hosts and ports where Local must be enabled for eg. localhost,3000,1,localhost,3001,0
 * `logfile`: Path to file where Local logs be saved to
-* `binary_path`: Optional path to Local binary
+* `binaryPath`: Optional path to Local binary
 
 
 ## Tests
