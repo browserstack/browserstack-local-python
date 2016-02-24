@@ -4,10 +4,6 @@ from browserstack.bserrors import BrowserStackLocalError
 
 class Local:
   def __init__(self, key=None, binary_path=None):
-    if binary_path is None:
-      self.binary_path = LocalBinary().get_binary()
-    else:
-      self.binary_path = binary_path
     self.options = {
       'key': key,
       'logfile_flag': '-logFile',
@@ -29,6 +25,12 @@ class Local:
   def start(self, **kwargs):
     for key, value in kwargs.iteritems():
       self.__add_arg(key, value)
+    
+    if self.options['binary_path'] is None:
+      self.binary_path = LocalBinary().get_binary()
+    else:
+      self.binary_path = binary_path
+
     if "onlyCommand" in kwargs and kwargs["onlyCommand"]: 
       return
 
@@ -65,18 +67,18 @@ class Local:
       self.options['only_automate'] = '-onlyAutomate'
     elif key == 'forcelocal' and value:
       self.options['forcelocal'] = '-forcelocal'
-    elif key == 'local_identifier':
+    elif key == 'localIdentifier':
       self.options['local_identifier'] = '-localIdentifier ' + str(value)
     elif key == 'f':
       self.options['folder_flag'] = '-f'
       self.options['folder_path'] = str(value)
-    elif key == 'proxy_host':
+    elif key == 'proxyHost':
       self.options['proxy_host'] = '-proxyHost ' + str(value)
-    elif key == 'proxy_port':
+    elif key == 'proxyPort':
       self.options['proxy_port'] = '-proxyPort ' + str(value)
-    elif key == 'proxy_user':
+    elif key == 'proxyUser':
       self.options['proxy_user'] = '-proxyUser ' + str(value)
-    elif key == 'proxy_pass':
+    elif key == 'proxyPass':
       self.options['proxy_pass'] = '-proxyPass ' + str(value)
     elif key == 'hosts':
       self.options['hosts'] = str(value)
@@ -84,6 +86,8 @@ class Local:
       self.options['logfile_flag'] = '-logFile'
       self.options['logfile'] = str(value)
       self.local_logfile_path = str(value)
+    elif key == 'binarypath':
+      self.options['binarypath'] = str(value)
     elif key != 'onlyCommand':
       raise BrowserStackLocalError('Attempted to pass invalid option to binary')
 

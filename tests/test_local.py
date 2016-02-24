@@ -26,7 +26,7 @@ class TestLocal(unittest.TestCase):
     self.assertIn('-force', self.local._generate_cmd())
 
   def test_only_automate(self):
-    self.local.start(only_automate=True, onlyCommand=True)
+    self.local.start(onlyAutomate=True, onlyCommand=True)
     self.assertIn('-onlyAutomate', self.local._generate_cmd())
 
   def test_force_local(self):
@@ -34,14 +34,14 @@ class TestLocal(unittest.TestCase):
     self.assertIn('-forcelocal', self.local._generate_cmd())
 
   def test_proxy(self):
-    self.local.start(proxy_host='localhost', proxy_port=2000, proxy_user='hello', proxy_pass='test123', onlyCommand=True)
+    self.local.start(proxyHost='localhost', proxyPort=2000, proxyUser='hello', proxyPass='test123', onlyCommand=True)
     self.assertIn('-proxyHost localhost', self.local._generate_cmd())
     self.assertIn('-proxyPort 2000', self.local._generate_cmd())
     self.assertIn('-proxyUser hello', self.local._generate_cmd())
     self.assertIn('-proxyPass test123', self.local._generate_cmd())
 
   def test_local_identifier(self):
-    self.local.start(local_identifier='mytunnel', onlyCommand=True)
+    self.local.start(localIdentifier='mytunnel', onlyCommand=True)
     self.assertIn('-localIdentifier mytunnel', self.local._generate_cmd())
 
   def test_invalid_option(self):
