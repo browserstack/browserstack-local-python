@@ -6,14 +6,14 @@ class LocalBinary:
     is_64bits = sys.maxsize > 2**32
     osname = platform.system()
     if osname == 'Darwin':
-      self.http_path = "https://www.browserstack.com/browserstack-local/BrowserStackLocal-darwin-x64.zip"
+      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if is_64bits:
-        self.http_path = "https://www.browserstack.com/browserstack-local/BrowserStackLocal-linux-x64.zip"
+        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64"
       else:
-        self.http_path = "https://www.browserstack.com/browserstack-local/BrowserStackLocal-linux-ia32.zip"
+        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
     else:
-      self.http_path = "https://www.browserstack.com/browserstack-local/BrowserStackLocal-win32.zip"
+      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe"
 
     self.ordered_paths = [
       os.path.join(os.path.expanduser('~'), '.browserstack'),
@@ -47,7 +47,7 @@ class LocalBinary:
 
     dest_parent_dir = self.__available_dir()
 
-    with open(os.path.join(dest_parent_dir, 'download.zip'), 'wb') as local_file:
+    with open(os.path.join(dest_parent_dir, 'BrowserStackLocal'), 'wb') as local_file:
       while True:
         chunk = response.read(chunk_size)
         bytes_so_far += len(chunk)
@@ -63,17 +63,10 @@ class LocalBinary:
         except:
           return self.download(chunk_size, progress_hook)
 
-    with zipfile.ZipFile(open(os.path.join(dest_parent_dir, 'download.zip'), 'r')) as z:
-      for name in z.namelist():
-        try:
-          z.extract(name, dest_parent_dir)
-        except:
-          return self.download(chunk_size, progress_hook)
-        # There is only one file
-        final_path = os.path.join(dest_parent_dir, name)
-        st = os.stat(final_path)
-        os.chmod(final_path, st.st_mode | stat.S_IXUSR)
-        return final_path
+    final_path = os.path.join(dest_parent_dir, 'BrowserStackLocal')
+    st = os.stat(final_path)
+    os.chmod(final_path, st.st_mode | stat.S_IXUSR)
+    return final_path
 
   def get_binary(self):
     dest_parent_dir = os.path.join(os.path.expanduser('~'), '.browserstack')
