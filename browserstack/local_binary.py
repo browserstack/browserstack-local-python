@@ -46,7 +46,7 @@ class LocalBinary:
     raise BrowserStackLocalError('Error trying to download BrowserStack Local binary')
 
   def download(self, chunk_size=8192, progress_hook=None):
-    response = urllib2.urlopen(self.http_path)
+    response = urlopen(self.http_path)
     total_size = int(response.info().getheader('Content-Length').strip())
     bytes_so_far = 0
 
