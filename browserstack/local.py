@@ -23,7 +23,7 @@ class Local:
     return [self.binary_path] + cmd
 
   def start(self, **kwargs):
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
       self.__add_arg(key, value)
     
     if 'binarypath' in self.options:
