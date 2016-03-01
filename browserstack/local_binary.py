@@ -1,19 +1,24 @@
-import platform, urllib2, os, sys, zipfile, stat, tempfile
+import platform, os, sys, zipfile, stat, tempfile
 from browserstack.bserrors import BrowserStackLocalError
+
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 
 class LocalBinary:
   def __init__(self):
     is_64bits = sys.maxsize > 2**32
     osname = platform.system()
     if osname == 'Darwin':
-      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64"
+      self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if is_64bits:
-        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64"
+        self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-x64"
       else:
-        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
+        self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-ia32"
     else:
-      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe"
+      self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-win32.exe"
 
     self.ordered_paths = [
       os.path.join(os.path.expanduser('~'), '.browserstack'),
@@ -41,8 +46,11 @@ class LocalBinary:
     raise BrowserStackLocalError('Error trying to download BrowserStack Local binary')
 
   def download(self, chunk_size=8192, progress_hook=None):
-    response = urllib2.urlopen(self.http_path)
-    total_size = int(response.info().getheader('Content-Length').strip())
+    response = urlopen(self.http_path)
+    try:
+      total_size = int(response.info().getheader('Content-Length').strip())
+    except:
+      total_size = int(response.info().get_all('Content-Length')[0].strip())
     bytes_so_far = 0
 
     dest_parent_dir = self.__available_dir()

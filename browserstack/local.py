@@ -1,4 +1,4 @@
-import subprocess, os, urllib2, time
+import subprocess, os, time
 from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
 
@@ -23,7 +23,7 @@ class Local:
     return [self.binary_path] + cmd
 
   def start(self, **kwargs):
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
       self.__add_arg(key, value)
     
     if 'binarypath' in self.options:

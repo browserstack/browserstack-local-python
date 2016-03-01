@@ -1,4 +1,4 @@
-import unittest, time, os, subprocess, urllib2
+import unittest, time, os, subprocess
 from browserstack.local import Local, BrowserStackLocalError
 
 class TestLocal(unittest.TestCase):
