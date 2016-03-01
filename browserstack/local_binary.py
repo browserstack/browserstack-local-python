@@ -47,7 +47,7 @@ class LocalBinary:
 
   def download(self, chunk_size=8192, progress_hook=None):
     response = urlopen(self.http_path)
-    total_size = int(response.info().getheader('Content-Length').strip())
+    total_size = int(response.info().get_all('Content-Length').strip())
     bytes_so_far = 0
 
     dest_parent_dir = self.__available_dir()
