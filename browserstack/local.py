@@ -1,4 +1,4 @@
-import subprocess, os, urllib2, time
+import subprocess, os, time
 from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
 
