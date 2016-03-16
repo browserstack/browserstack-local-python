@@ -9,16 +9,18 @@ except ImportError:
 class LocalBinary:
   def __init__(self):
     is_64bits = sys.maxsize > 2**32
+    self.is_windows = False
     osname = platform.system()
     if osname == 'Darwin':
-      self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-darwin-x64"
+      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if is_64bits:
-        self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-x64"
+        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64"
       else:
-        self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-linux-ia32"
+        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
     else:
-      self.http_path = "https://s3.amazonaws.com/bs-automate-prod/local/BrowserStackLocal-win32.exe"
+      self.is_windows = True
+      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe"
 
     self.ordered_paths = [
       os.path.join(os.path.expanduser('~'), '.browserstack'),
@@ -54,8 +56,11 @@ class LocalBinary:
     bytes_so_far = 0
 
     dest_parent_dir = self.__available_dir()
+    dest_binary_name = 'BrowserStackLocal'
+    if self.is_windows:
+      dest_binary_name += '.exe'
 
-    with open(os.path.join(dest_parent_dir, 'BrowserStackLocal'), 'wb') as local_file:
+    with open(os.path.join(dest_parent_dir, dest_binary_name), 'wb') as local_file:
       while True:
         chunk = response.read(chunk_size)
         bytes_so_far += len(chunk)
@@ -71,7 +76,7 @@ class LocalBinary:
         except:
           return self.download(chunk_size, progress_hook)
 
-    final_path = os.path.join(dest_parent_dir, 'BrowserStackLocal')
+    final_path = os.path.join(dest_parent_dir, dest_binary_name)
     st = os.stat(final_path)
     os.chmod(final_path, st.st_mode | stat.S_IXUSR)
     return final_path
