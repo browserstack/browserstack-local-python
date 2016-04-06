@@ -18,7 +18,7 @@ class Local:
     return str(obj)
 
   def _generate_cmd(self):
-    options_order = ['logfile_flag', 'logfile_path', 'folder_flag', 'key', 'folder_path', 'forcelocal', 'local_identifier', 'only', 'only_automate', 'proxy_host', 'proxy_port', 'proxy_user', 'proxy_pass', 'forceproxy' 'force', 'verbose', 'hosts']
+    options_order = ['logfile_flag', 'logfile_path', 'folder_flag', 'key', 'folder_path', 'forcelocal', 'local_identifier', 'only', 'only_automate', 'proxy_host', 'proxy_port', 'proxy_user', 'proxy_pass', 'forceproxy', 'force', 'verbose', 'hosts']
     cmd = [self.__xstr(self.options.get(o)) for o in options_order if self.options.get(o) is not None]
     return [self.binary_path] + cmd
 
