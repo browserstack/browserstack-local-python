@@ -40,6 +40,10 @@ class TestLocal(unittest.TestCase):
     self.assertIn('-proxyUser hello', self.local._generate_cmd())
     self.assertIn('-proxyPass test123', self.local._generate_cmd())
 
+  def test_force_proxy(self):
+    self.local.start(forceproxy=True, onlyCommand=True)
+    self.assertIn('-forceproxy', self.local._generate_cmd())
+
   def test_local_identifier(self):
     self.local.start(localIdentifier='mytunnel', onlyCommand=True)
     self.assertIn('-localIdentifier mytunnel', self.local._generate_cmd())
