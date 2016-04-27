@@ -38,7 +38,6 @@ class Local:
     if "onlyCommand" in kwargs and kwargs["onlyCommand"]: 
       return
 
-    print self._generate_cmd()
     self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE)
     self.stderr = self.proc.stderr
 
