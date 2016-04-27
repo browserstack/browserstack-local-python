@@ -103,8 +103,6 @@ bs_local_args = { "key": "<browserstack-accesskey>" , "v": "true", "logfile": "/
 
 ## Contribute
 
-### Build Instructions
-
 To run the test suite run, `python -m unittest discover`.
 
 ### Reporting bugs
