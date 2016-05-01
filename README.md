@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/browserstack/browserstack-local-python.svg?branch=master)](https://travis-ci.org/browserstack/browserstack-local-python)
 
-A simple Python wrapper for BrowserStack Local Binary.
+Python bindings for BrowserStack Local.
 
 ## Installation
 
