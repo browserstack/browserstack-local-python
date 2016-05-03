@@ -1,0 +1,7 @@
+LICENSE.txt
+README.md
+setup.cfg
+setup.py
+recursive-include browserstack *.py
+recursive-include tests *.py
+

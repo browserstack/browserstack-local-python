@@ -1,3 +1,6 @@
 *.pyc
 env
 local.log
+dist/**
+MANIFEST
+
