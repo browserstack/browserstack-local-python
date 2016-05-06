@@ -3,7 +3,7 @@ setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
   version = '0.1.0',
-  description = 'Python bindings from Browserstack Local',
+  description = 'Python bindings for Browserstack Local',
   author = 'BrowserStack',
   author_email = 'support@browserstack.com',
   url = 'https://github.com/browserstack/browserstack-local-python',
