@@ -53,7 +53,10 @@ class Local:
 
     os.system('echo "" > "'+ self.local_logfile_path +'"')
     try:
-      data = json.loads(out if out else err)
+      if err:
+        data = json.loads(err)
+      else:
+        data = json.loads(out)
 
       if data['state'] != "connected":
         raise BrowserStackLocalError(data["message"])
