@@ -25,7 +25,7 @@ class TestLocal(unittest.TestCase):
       self.local2 = Local(os.environ['BROWSERSTACK_ACCESS_KEY'])
       self.local2.start()
     except BrowserStackLocalError as e:
-      self.assertEqual(e.message, "Either another browserstack local client is running on your machine or some server is listening on port 45691")
+      self.assertEqual(str(e), "Either another browserstack local client is running on your machine or some server is listening on port 45691")
 
   def test_verbose(self):
     self.local.start(v=True, onlyCommand=True)
