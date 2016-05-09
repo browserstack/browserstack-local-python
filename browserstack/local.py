@@ -26,8 +26,13 @@ class Local:
   def start(self, **kwargs):
     self.options = kwargs
 
+    if 'key' in self.options:
+      self.key = self.options['key']
+      del self.options['key']
+
     if 'binarypath' in self.options:
       self.binary_path = binary_path
+      del self.options['binarypath']
     else:
       self.binary_path = LocalBinary().get_binary()
 
@@ -35,7 +40,7 @@ class Local:
       self.local_logfile_path = self.options['logfile']
       del self.options['logfile']
 
-    if "onlyCommand" in kwargs and kwargs["onlyCommand"]: 
+    if "onlyCommand" in kwargs and kwargs["onlyCommand"]:
       return
 
     self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE)
