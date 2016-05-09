@@ -1,4 +1,4 @@
-import subprocess, os, time
+import subprocess, os, time, json, psutil
 from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
 
@@ -17,10 +17,15 @@ class Local:
       return ['-' + key, value]
 
   def _generate_cmd(self):
-    cmd = [self.binary_path, '-logFile', self.local_logfile_path, self.key]
+    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, self.key]
     for o in self.options.keys():
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
+    return cmd
+
+  def _generate_stop_cmd(self):
+    cmd = self._generate_cmd()
+    cmd[2] = 'stop'
     return cmd
 
   def start(self, **kwargs):
@@ -43,34 +48,26 @@ class Local:
     if "onlyCommand" in kwargs and kwargs["onlyCommand"]:
       return
 
-    self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE)
-    self.stderr = self.proc.stderr
+    self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, err) = self.proc.communicate()
 
     os.system('echo "" > "'+ self.local_logfile_path +'"')
-    with open(self.local_logfile_path, 'r') as local_logfile:
-      while True:
-        line = local_logfile.readline()
-        if 'Error:' in line.strip():
-          raise BrowserStackLocalError(line)
-        elif line.strip() == 'Press Ctrl-C to exit':
-          break
+    try:
+      data = json.loads(out if out else err)
 
-    while True:
-      if self.isRunning():
-        break
-      time.sleep(1)
+      if data['state'] != "connected":
+        raise BrowserStackLocalError(data["message"])
+      else:
+        self.pid = data['pid']
+    except ValueError:
+      raise BrowserStackLocalError('Error parsing JSON output from daemon')
 
   def isRunning(self):
-    if (hasattr(self, 'proc')):
-      return True if self.proc.poll() is None else False
-    return False
+    return hasattr(self, 'pid') and psutil.pid_exists(self.pid)
 
   def stop(self):
     try:
-      self.proc.terminate()
-      while True:
-        if not self.isRunning():
-          break
-        time.sleep(1)
+      proc = subprocess.Popen(self._generate_stop_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      (out, err) = proc.communicate()
     except Exception as e:
       return

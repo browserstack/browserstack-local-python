@@ -12,6 +12,21 @@ class TestLocal(unittest.TestCase):
     self.local.start()
     self.assertNotEqual(self.local.proc.pid, 0)
 
+  def test_running(self):
+    self.assertFalse(self.local.isRunning())
+    self.local.start()
+    self.assertTrue(self.local.isRunning())
+
+  def test_multiple(self):
+    self.assertFalse(self.local.isRunning())
+    self.local.start()
+    self.assertTrue(self.local.isRunning())
+    try:
+      self.local2 = Local(os.environ['BROWSERSTACK_ACCESS_KEY'])
+      self.local2.start()
+    except BrowserStackLocalError as e:
+      self.assertEqual(e.message, "Either another browserstack local client is running on your machine or some server is listening on port 45691")
+
   def test_verbose(self):
     self.local.start(v=True, onlyCommand=True)
     self.assertIn('-v', self.local._generate_cmd())
@@ -64,8 +79,3 @@ class TestLocal(unittest.TestCase):
     self.local.start(localIdentifier='mytunnel', onlyCommand=True)
     self.assertIn('-localIdentifier', self.local._generate_cmd())
     self.assertIn('mytunnel', self.local._generate_cmd())
-
-  def test_running(self):
-    self.assertFalse(self.local.isRunning())
-    self.local.start()
-    self.assertTrue(self.local.isRunning())

@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
-  version = '0.3.1',
+  version = '0.4.0',
   description = 'Python bindings for Browserstack Local',
   author = 'BrowserStack',
   author_email = 'support@browserstack.com',
