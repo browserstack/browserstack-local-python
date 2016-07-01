@@ -3,8 +3,8 @@ from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
 
 class Local:
-  def __init__(self, key=os.environ['BROWSERSTACK_ACCESS_KEY'], binary_path=None):
-    self.key = key
+  def __init__(self, key=None, binary_path=None):
+    self.key = os.environ['BROWSERSTACK_ACCESS_KEY'] if 'BROWSERSTACK_ACCESS_KEY' in os.environ else None
     self.options = None
     self.local_logfile_path = os.path.join(os.getcwd(), 'local.log')
 
