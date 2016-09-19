@@ -59,7 +59,7 @@ class Local:
         data = json.loads(err.decode())
 
       if data['state'] != "connected":
-        raise BrowserStackLocalError(data["message"])
+        raise BrowserStackLocalError(data["message"]["message"])
       else:
         self.pid = data['pid']
     except ValueError:
