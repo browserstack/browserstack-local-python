@@ -10,5 +10,8 @@ setup(
   download_url = 'https://github.com/browserstack/browserstack-local-python/archive/master.zip',
   keywords = ['BrowserStack', 'Local', 'selenium', 'testing'],
   classifiers = [],
+  install_requires=[
+        'psutil',
+  ],
 )
 
