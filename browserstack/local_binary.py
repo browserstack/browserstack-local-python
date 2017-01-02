@@ -1,4 +1,4 @@
-import platform, os, sys, zipfile, stat, tempfile, re, subprocess
+import platform, os, sys, zipfile, stat, tempfile, re, subprocess, traceback
 from browserstack.bserrors import BrowserStackLocalError
 
 try:
@@ -87,6 +87,7 @@ class LocalBinary:
       pattern = re.compile("BrowserStack Local version \d+\.\d+")
       return bool(pattern.match(binary_response))
     except:
+      traceback.print_exc()
       return False
 
   def get_binary(self):
