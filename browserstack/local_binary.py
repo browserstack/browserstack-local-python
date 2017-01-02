@@ -1,4 +1,4 @@
-import platform, os, sys, zipfile, stat, tempfile
+import platform, os, sys, zipfile, stat, tempfile, re, subprocess
 from browserstack.bserrors import BrowserStackLocalError
 
 try:
@@ -81,12 +81,33 @@ class LocalBinary:
     os.chmod(final_path, st.st_mode | stat.S_IXUSR)
     return final_path
 
+  def __verify_binary(self,path):
+    try:
+      binary_response = subprocess.check_output([path,"--version"])
+      pattern = re.compile("BrowserStack Local version \d+\.\d+")
+      return bool(pattern.match(binary_response))
+    except:
+      return False
+
   def get_binary(self):
     dest_parent_dir = os.path.join(os.path.expanduser('~'), '.browserstack')
     if not os.path.exists(dest_parent_dir):
       os.makedirs(dest_parent_dir)
     bsfiles = [f for f in os.listdir(dest_parent_dir) if f.startswith('BrowserStackLocal')]
+    
     if len(bsfiles) == 0:
-      return self.download()
+      binary_path = self.download()
     else:
-      return os.path.join(dest_parent_dir, bsfiles[0])
+      binary_path = os.path.join(dest_parent_dir, bsfiles[0])
+
+    valid_binary = self.__verify_binary(binary_path)
+    if valid_binary:
+      return binary_path
+    else:
+      binary_path = self.download()
+      valid_binary = self.__verify_binary(binary_path)
+      if valid_binary:
+        return binary_path
+      else:
+        raise BrowserStackLocalError('BrowserStack Local binary is corrupt')
+
