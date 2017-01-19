@@ -1,8 +1,11 @@
-from distutils.core import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
-  version = '1.2.0',
+  version = '1.2.1',
   description = 'Python bindings for Browserstack Local',
   author = 'BrowserStack',
   author_email = 'support@browserstack.com',
