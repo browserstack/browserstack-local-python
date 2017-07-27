@@ -36,7 +36,7 @@ class Local:
       del self.options['key']
 
     if 'binarypath' in self.options:
-      self.binary_path = binary_path
+      self.binary_path = self.options['binarypath']
       del self.options['binarypath']
     else:
       self.binary_path = LocalBinary().get_binary()
