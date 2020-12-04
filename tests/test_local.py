@@ -79,3 +79,7 @@ class TestLocal(unittest.TestCase):
     self.local.start(localIdentifier='mytunnel', onlyCommand=True)
     self.assertIn('-localIdentifier', self.local._generate_cmd())
     self.assertIn('mytunnel', self.local._generate_cmd())
+
+  def test_context_manager(self):
+    with Local('BROWSERSTACK_ACCESS_KEY') as local:
+      self.assertNotEqual(local.proc.pid, 0)

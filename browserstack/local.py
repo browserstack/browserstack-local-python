@@ -3,9 +3,9 @@ from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
 
 class Local:
-  def __init__(self, key=None, binary_path=None):
+  def __init__(self, key=None, binary_path=None, **kwargs):
     self.key = os.environ['BROWSERSTACK_ACCESS_KEY'] if 'BROWSERSTACK_ACCESS_KEY' in os.environ else key
-    self.options = None
+    self.options = kwargs
     self.local_logfile_path = os.path.join(os.getcwd(), 'local.log')
 
   def __xstr(self, key, value):
@@ -29,7 +29,8 @@ class Local:
     return cmd
 
   def start(self, **kwargs):
-    self.options = kwargs
+    for k, v in kwargs.items():
+        self.options[k] = v
 
     if 'key' in self.options:
       self.key = self.options['key']
@@ -74,3 +75,10 @@ class Local:
       (out, err) = proc.communicate()
     except Exception as e:
       return
+
+  def __enter__(self):
+    self.start(**self.options)
+    return self
+
+  def __exit__(self, *args):
+    self.stop()
