@@ -8,6 +8,13 @@ class Local:
     self.options = kwargs
     self.local_logfile_path = os.path.join(os.getcwd(), 'local.log')
 
+  def _get_version(self, a_path):
+    with open(a_path, 'r') as version_file:
+      version = "".join(version_file.readlines())
+      version = version.split("=")[1].split()[0].replace('"','').replace("'","")
+      return version
+    raise RuntimeError("Version file not found!")
+
   def __xstr(self, key, value):
     if key is None:
       return ['']
@@ -17,7 +24,7 @@ class Local:
       return ['-' + key, value]
 
   def _generate_cmd(self):
-    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, self.key]
+    cmd = [self.binary_path, '-d', 'start', '--source', "python-" + self._get_version("version.py"), '-logFile', self.local_logfile_path, self.key]
     for o in self.options.keys():
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
