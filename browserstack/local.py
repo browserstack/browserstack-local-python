@@ -1,6 +1,13 @@
 import subprocess, os, time, json, psutil
+import browserstack.version
 from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
+
+
+# Python modules report to module_name.__version__ with their version
+# Ref: https://www.python.org/dev/peps/pep-0008/#module-level-dunder-names
+# With this, browserstack.local.__version__ will respond with <version>
+__version__ = browserstack.version.__version__
 
 class Local:
   def __init__(self, key=None, binary_path=None, **kwargs):
@@ -16,8 +23,11 @@ class Local:
     else:
       return ['-' + key, value]
 
+  def _get_version(self):
+      return __version__
+
   def _generate_cmd(self):
-    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, self.key]
+    cmd = [self.binary_path, '-d', 'start','--source', 'python-' + self._get_version() , '-logFile', self.local_logfile_path, self.key]
     for o in self.options.keys():
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
