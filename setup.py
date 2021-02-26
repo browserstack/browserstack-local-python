@@ -1,3 +1,14 @@
+
+
+# Need to read the single-source-of-truth version file as text
+# Importing version_file here can open the door to a cyclic dependency
+def get_version(a_path):
+    with open(a_path, 'r') as version_file:
+        for a_line in version_file:
+            if '__version__' in a_line:
+                # Cleaning up all spaces and quotes around a string of the form __version__ = "x.y.z"
+                return a_line.split("=")[1].split()[0].replace('"', '').replace("'","")
+    raise RuntimeError("Unable to find version string.")
 try:
     from setuptools import setup
 except ImportError:
@@ -5,7 +16,7 @@ except ImportError:
 setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
-  version = '1.2.2',
+  version = get_version("browserstack/version.py"),
   description = 'Python bindings for Browserstack Local',
   author = 'BrowserStack',
   author_email = 'support@browserstack.com',
