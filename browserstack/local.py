@@ -11,10 +11,15 @@ class Local:
   def __xstr(self, key, value):
     if key is None:
       return ['']
-    if str(value).lower() == "true":
-      return ['-' + key]
+    if len(key) > 1:
+      key = key.replace("_", "-")
+      key = "--" + key
     else:
-      return ['-' + key, value]
+      key = "-" + key
+    if str(value).lower() == "true":
+      return [key]
+    else:
+      return [key, value]
 
   def _generate_cmd(self):
     cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, self.key]
