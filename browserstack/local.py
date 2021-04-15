@@ -17,7 +17,7 @@ class Local:
       return ['-' + key, value]
 
   def _generate_cmd(self):
-    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, self.key]
+    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, "-k", self.key]
     for o in self.options.keys():
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
