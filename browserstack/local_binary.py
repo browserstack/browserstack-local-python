@@ -12,15 +12,15 @@ class LocalBinary:
     self.is_windows = False
     osname = platform.system()
     if osname == 'Darwin':
-      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-darwin-x64"
+      self.http_path = "https://s3.amazonaws.com/bstack-local-prod/BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if is_64bits:
-        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64"
+        self.http_path = "https://s3.amazonaws.com/bstack-local-prod/BrowserStackLocal-linux-x64"
       else:
-        self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
+        self.http_path = "https://s3.amazonaws.com/bstack-local-prod/BrowserStackLocal-linux-ia32"
     else:
       self.is_windows = True
-      self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe"
+      self.http_path = "https://s3.amazonaws.com/bstack-local-prod/BrowserStackLocal.exe"
 
     self.ordered_paths = [
       os.path.join(os.path.expanduser('~'), '.browserstack'),
