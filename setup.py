@@ -5,7 +5,7 @@ except ImportError:
 setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
-  version = '1.2.3',
+  version = '1.2.4',
   description = 'Python bindings for Browserstack Local',
   author = 'BrowserStack',
   author_email = 'support@browserstack.com',
@@ -15,6 +15,7 @@ setup(
   classifiers = [],
   install_requires=[
         'psutil',
+        'distro',
   ],
 )
 

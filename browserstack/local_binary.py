@@ -1,4 +1,5 @@
 import platform, os, sys, zipfile, stat, tempfile, re, subprocess
+import distro
 from browserstack.bserrors import BrowserStackLocalError
 
 try:
@@ -18,6 +19,8 @@ class LocalBinary:
         self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-x64"
       else:
         self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal-linux-ia32"
+    elif distro.linux_distribution()[0] == 'Alpine Linux':
+      self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-alpine"
     else:
       self.is_windows = True
       self.http_path = "https://s3.amazonaws.com/browserStack/browserstack-local/BrowserStackLocal.exe"
