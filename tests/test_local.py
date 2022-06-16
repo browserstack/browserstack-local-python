@@ -53,6 +53,11 @@ class TestLocal(unittest.TestCase):
     self.assertIn('-boolArg1', self.local._generate_cmd())
     self.assertIn('-boolArg2', self.local._generate_cmd())
 
+  def test_custom_boolean_argument_false(self):
+    self.local.start(boolArg1=False, boolArg2=False, onlyCommand=True)
+    self.assertNotIn('-boolArg1', self.local._generate_cmd())
+    self.assertNotIn('-boolArg2', self.local._generate_cmd())
+
   def test_custom_keyval(self):
     self.local.start(customKey1="custom value1", customKey2="custom value2", onlyCommand=True)
     self.assertIn('-customKey1', self.local._generate_cmd())

@@ -13,6 +13,8 @@ class Local:
       return ['']
     if str(value).lower() == "true":
       return ['-' + key]
+    elif str(value).lower() == "false":
+      return ['']
     else:
       return ['-' + key, value]
 
