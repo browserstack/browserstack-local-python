@@ -4,3 +4,6 @@ local.log
 dist/**
 MANIFEST
 
+venv
+build
+browserstack_local.egg-info

@@ -1,6 +1,10 @@
-import subprocess, os, time, json, psutil
+import subprocess, os, time, json,logging
+import psutil
+
 from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
+
+logger = logging.getLogger(__name__)
 
 class Local:
   def __init__(self, key=None, binary_path=None, **kwargs):
@@ -51,22 +55,25 @@ class Local:
     if "onlyCommand" in kwargs and kwargs["onlyCommand"]:
       return
 
-    self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    self.proc = subprocess.Popen('ls', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = self.proc.communicate()
 
     os.system('echo "" > "'+ self.local_logfile_path +'"')
     try:
       if out:
-        data = json.loads(out.decode())
+        output_string = out.decode()
       else:
-        data = json.loads(err.decode())
+        output_string = err.decode()
+
+      data = json.loads(output_string)
 
       if data['state'] != "connected":
         raise BrowserStackLocalError(data["message"]["message"])
       else:
         self.pid = data['pid']
     except ValueError:
-      raise BrowserStackLocalError('Error parsing JSON output from daemon')
+      logger.error("BinaryOutputParseError: Raw String = '{}'".format(output_string) )
+      raise BrowserStackLocalError('Error parsing JSON output from daemon. Raw String = "{}"'.format(output_string))
 
   def isRunning(self):
     return hasattr(self, 'pid') and psutil.pid_exists(self.pid)
