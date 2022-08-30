@@ -1,4 +1,4 @@
-import platform, os, sys, zipfile, stat, tempfile, re, subprocess
+import platform, os, sys, stat, tempfile, re, subprocess
 from browserstack.bserrors import BrowserStackLocalError
 
 try:
@@ -14,10 +14,13 @@ class LocalBinary:
     if osname == 'Darwin':
       self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
-      if is_64bits:
-        self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-x64"
+      if self.is_alpine():
+        self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-alpine"
       else:
-        self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-ia32"
+        if is_64bits:
+          self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-x64"
+        else:
+          self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-ia32"
     else:
       self.is_windows = True
       self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal.exe"
@@ -28,6 +31,12 @@ class LocalBinary:
       tempfile.gettempdir()
     ]
     self.path_index = 0
+
+  def is_alpine(self):
+    grepOutput = subprocess.run("gfrep -w NAME /etc/os-release", capture_output=True, shell=True)
+    if grepOutput.stdout.decode('utf-8').find('Alpine') > -1:
+      return True
+    return False
 
   def __make_path(self, dest_path):
     try:
