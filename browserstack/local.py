@@ -1,5 +1,3 @@
-from ast import Try
-from re import T
 import subprocess, os, time, json, psutil
 from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
