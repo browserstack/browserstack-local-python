@@ -7,3 +7,5 @@ MANIFEST
 venv
 build
 browserstack_local.egg-info
+build
+browserstack_local.egg-info

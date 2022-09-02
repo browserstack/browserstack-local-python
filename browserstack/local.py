@@ -5,6 +5,10 @@ from browserstack.local_binary import LocalBinary
 from browserstack.bserrors import BrowserStackLocalError
 
 logger = logging.getLogger(__name__)
+try:
+    from importlib.metadata import version as package_version, PackageNotFoundError
+except:
+    import pkg_resources
 
 class Local:
   def __init__(self, key=None, binary_path=None, **kwargs):
@@ -22,8 +26,30 @@ class Local:
     else:
       return ['-' + key, value]
 
+  def get_package_version(self):
+    name = "browserstack-local"
+    version = 'None'
+    use_fallback = False
+    try:
+        temp = package_version
+    except NameError: # Only catch if package_version is not defined(and not other errors)
+        use_fallback = True
+
+    if use_fallback:
+        try:
+            version = pkg_resources.get_distribution(name).version
+        except pkg_resources.DistributionNotFound:
+            version = 'None'
+    else:
+        try:
+            version = package_version(name)
+        except PackageNotFoundError:
+            version = 'None'
+
+    return version
+
   def _generate_cmd(self):
-    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, "-k", self.key]
+    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, "-k", self.key, '--source', 'python:' + self.get_package_version()]
     for o in self.options.keys():
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
@@ -55,7 +81,11 @@ class Local:
     if "onlyCommand" in kwargs and kwargs["onlyCommand"]:
       return
 
-    self.proc = subprocess.Popen('ls', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    if 'source' in self.options:
+      del self.options['source']
+
+    self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = self.proc.communicate()
 
     os.system('echo "" > "'+ self.local_logfile_path +'"')
