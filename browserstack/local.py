@@ -81,7 +81,6 @@ class Local:
     if "onlyCommand" in kwargs and kwargs["onlyCommand"]:
       return
 
-
     if 'source' in self.options:
       del self.options['source']
 
