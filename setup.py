@@ -5,7 +5,7 @@ except ImportError:
 setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
-  version = '1.2.4',
+  version = '1.2.5',
   description = 'Python bindings for Browserstack Local',
   author = 'BrowserStack',
   author_email = 'support@browserstack.com',
