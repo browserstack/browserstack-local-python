@@ -102,7 +102,8 @@ class LocalBinary:
     dest_parent_dir = os.path.join(os.path.expanduser('~'), '.browserstack')
     if not os.path.exists(dest_parent_dir):
       os.makedirs(dest_parent_dir)
-    bsfiles = [f for f in os.listdir(dest_parent_dir) if f.startswith('BrowserStackLocal')]
+    binary_name = 'BrowserStackLocal.exe' if self.is_windows else 'BrowserStackLocal'
+    bsfiles = [f for f in os.listdir(dest_parent_dir) if f == binary_name]
     
     if len(bsfiles) == 0:
       binary_path = self.download()
