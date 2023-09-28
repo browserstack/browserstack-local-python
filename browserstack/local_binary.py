@@ -10,32 +10,30 @@ import urllib3
 from browserstack.bserrors import BrowserStackLocalError
 
 class LocalBinary:
-    """BrowserStack LocalBinary class to download to local, also supporting proxies."""
-    def __init__(self, proxy=None):
-        is_64bits = sys.maxsize > 2 ** 32
-        self.is_windows = False
-        self.proxy = proxy
-        osname = platform.system()
-        if osname == 'Darwin':
-            self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-darwin-x64"
-        elif osname == 'Linux':
-            if self.is_alpine():
-                self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-alpine"
-            else:
-                if is_64bits:
-                    self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-x64"
-                else:
-                    self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal-linux-ia32"
+  def __init__(self):
+    is_64bits = sys.maxsize > 2**32
+    self.is_windows = False
+    osname = platform.system()
+    if osname == 'Darwin':
+      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-darwin-x64"
+    elif osname == 'Linux':
+      if self.is_alpine():
+        self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-alpine"
+      else:
+        if is_64bits:
+          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-x64"
         else:
-            self.is_windows = True
-            self.http_path = "https://bstack-local-prod.s3.amazonaws.com/BrowserStackLocal.exe"
+          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-ia32"
+    else:
+      self.is_windows = True
+      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal.exe"
 
-        self.ordered_paths = [
+      self.ordered_paths = [
             os.path.join(os.path.expanduser('~'), '.browserstack'),
             os.getcwd(),
             tempfile.gettempdir()
-        ]
-        self.path_index = 0
+      ]
+      self.path_index = 0
 
 
     def __available_dir(self):
@@ -77,29 +75,41 @@ class LocalBinary:
         total_size = int(response.headers['Content-Length'].strip())
         bytes_so_far = 0
 
-        dest_parent_dir = self.__available_dir()
-        dest_binary_name = 'BrowserStackLocal'
-        if self.is_windows:
-            dest_binary_name += '.exe'
+  def get_binary(self):
+    dest_parent_dir = os.path.join(os.path.expanduser('~'), '.browserstack')
+    if not os.path.exists(dest_parent_dir):
+      os.makedirs(dest_parent_dir)
+    binary_name = 'BrowserStackLocal.exe' if self.is_windows else 'BrowserStackLocal'
+    bsfiles = [f for f in os.listdir(dest_parent_dir) if f == binary_name]
+    
+    if len(bsfiles) == 0:
+      binary_path = self.download()
+    else:
+      binary_path = os.path.join(dest_parent_dir, bsfiles[0])
 
-        with open(os.path.join(dest_parent_dir, dest_binary_name), 'wb') as local_file:
-            for chunk in response.stream(chunk_size):
-                bytes_so_far += len(chunk)
-                if not chunk:
-                    break
+    dest_parent_dir = self.__available_dir()
+    dest_binary_name = 'BrowserStackLocal'
+    if self.is_windows:
+        dest_binary_name += '.exe'
 
-                if progress_hook:
-                    progress_hook(bytes_so_far, chunk_size, total_size)
+    with open(os.path.join(dest_parent_dir, dest_binary_name), 'wb') as local_file:
+        for chunk in response.stream(chunk_size):
+            bytes_so_far += len(chunk)
+            if not chunk:
+                break
 
-                try:
-                    local_file.write(chunk)
-                except:
-                    return self.download(chunk_size, progress_hook)
+            if progress_hook:
+                progress_hook(bytes_so_far, chunk_size, total_size)
 
-        final_path = os.path.join(dest_parent_dir, dest_binary_name)
-        st = os.stat(final_path)
-        os.chmod(final_path, st.st_mode | stat.S_IXUSR)
-        return final_path
+            try:
+                local_file.write(chunk)
+            except:
+                return self.download(chunk_size, progress_hook)
+
+    final_path = os.path.join(dest_parent_dir, dest_binary_name)
+    st = os.stat(final_path)
+    os.chmod(final_path, st.st_mode | stat.S_IXUSR)
+    return final_path
 
 
     def __verify_binary(self, path):
