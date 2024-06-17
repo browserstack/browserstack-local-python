@@ -12,18 +12,18 @@ class LocalBinary:
     self.is_windows = False
     osname = platform.system()
     if osname == 'Darwin':
-      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-darwin-x64"
+      self.http_path = "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if self.is_alpine():
-        self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-alpine"
+        self.http_path = "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-alpine"
       else:
         if is_64bits:
-          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-x64"
+          self.http_path = "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-linux-x64"
         else:
-          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-ia32"
+          self.http_path = "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal-linux-ia32"
     else:
       self.is_windows = True
-      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal.exe"
+      self.http_path = "https://www.browserstack.com/local-testing/downloads/bin/BrowserStackLocal.exe"
 
     self.ordered_paths = [
       os.path.join(os.path.expanduser('~'), '.browserstack'),
