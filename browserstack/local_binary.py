@@ -33,7 +33,7 @@ class LocalBinary:
     self.path_index = 0
 
   def is_alpine(self):
-    grepOutput = subprocess.run("gfrep -w NAME /etc/os-release", capture_output=True, shell=True)
+    grepOutput = subprocess.run("grep -w NAME /etc/os-release", capture_output=True, shell=True)
     if grepOutput.stdout.decode('utf-8').find('Alpine') > -1:
       return True
     return False
