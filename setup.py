@@ -7,6 +7,8 @@ setup(
   packages = ['browserstack'],
   version = '1.2.8',
   description = 'Python bindings for Browserstack Local',
+  long_description=open('README.md').read(),
+  long_description_content_type='text/markdown',
   author = 'BrowserStack',
   author_email = 'support@browserstack.com',
   url = 'https://github.com/browserstack/browserstack-local-python',
