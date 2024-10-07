@@ -15,6 +15,7 @@ class Local:
     self.key = os.environ['BROWSERSTACK_ACCESS_KEY'] if 'BROWSERSTACK_ACCESS_KEY' in os.environ else key
     self.options = kwargs
     self.local_logfile_path = os.path.join(os.getcwd(), 'local.log')
+    LocalBinary.set_version(self.get_package_version())
 
   def __xstr(self, key, value):
     if key is None:
