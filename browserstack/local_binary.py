@@ -20,19 +20,23 @@ class LocalBinary:
     is_64bits = sys.maxsize > 2**32
     self.is_windows = False
     osname = platform.system()
+    source_url = "https://www.browserstack.com/local-testing/downloads/binaries/"
+    if os.environ.get('BROWSERSTACK_LOCAL_BIN_URL'):
+      source_url = os.environ.get('BROWSERSTACK_LOCAL_BIN_URL')
+
     if osname == 'Darwin':
-      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-darwin-x64"
+      self.http_path = source_url + "BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if self.is_alpine():
-        self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-alpine"
+        self.http_path = source_url + "BrowserStackLocal-alpine"
       else:
         if is_64bits:
-          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-x64"
+          self.http_path = source_url + "BrowserStackLocal-linux-x64"
         else:
-          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-ia32"
+          self.http_path = source_url + "BrowserStackLocal-linux-ia32"
     else:
       self.is_windows = True
-      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal.exe"
+      self.http_path = source_url + "BrowserStackLocal.exe"
 
     self.ordered_paths = [
       os.path.join(os.path.expanduser('~'), '.browserstack'),
@@ -91,6 +95,9 @@ class LocalBinary:
 
     content_encoding = response.info().get('Content-Encoding', '')
     gzip_file = gzip.GzipFile(fileobj=response, mode='rb') if content_encoding.lower() == 'gzip' else None
+
+    if os.getenv('BROWSERSTACK_LOCAL_DEBUG_GZIP') and gzip_file:
+      print('using gzip in ' + headers['User-Agent'])
 
     def read_chunk(chunk_size):
       if gzip_file:
