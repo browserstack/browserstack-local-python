@@ -21,8 +21,6 @@ class LocalBinary:
     self.is_windows = False
     osname = platform.system()
     source_url = "https://www.browserstack.com/local-testing/downloads/binaries/"
-    if os.environ.get('BROWSERSTACK_LOCAL_BIN_URL'):
-      source_url = os.environ.get('BROWSERSTACK_LOCAL_BIN_URL')
 
     if osname == 'Darwin':
       self.http_path = source_url + "BrowserStackLocal-darwin-x64"
