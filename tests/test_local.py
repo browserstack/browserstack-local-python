@@ -70,7 +70,7 @@ class TestLocal(unittest.TestCase):
     self.assertIn('-proxyHost', self.local._generate_cmd())
     self.assertIn('localhost', self.local._generate_cmd())
     self.assertIn('-proxyPort', self.local._generate_cmd())
-    self.assertIn(2000, self.local._generate_cmd())
+    self.assertIn('2000', self.local._generate_cmd())
     self.assertIn('-proxyUser', self.local._generate_cmd())
     self.assertIn('hello', self.local._generate_cmd())
     self.assertIn('-proxyPass', self.local._generate_cmd())
