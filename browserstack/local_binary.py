@@ -3,9 +3,9 @@ from browserstack.bserrors import BrowserStackLocalError
 import gzip
 
 try:
-    from urllib.request import urlopen
+    from urllib.request import urlopen, Request
 except ImportError:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, Request
 
 class LocalBinary:
   _version = None
@@ -73,7 +73,7 @@ class LocalBinary:
       # lack of support for gzip decoding for stream, response is expected to have a tell() method
       headers.pop('Accept-Encoding', None)
 
-    response = urlopen(self.http_path, headers=headers)
+    response = urlopen(Request(self.http_path, headers=headers))
     try:
       total_size = int(response.info().get('Content-Length', '').strip() or '0')
     except:
