@@ -25,7 +25,7 @@ class Local:
     elif str(value).lower() == "false":
       return ['']
     else:
-      return ['-' + key, value]
+      return ['-' + key, str(value)]
 
   def get_package_version(self):
     name = "browserstack-local"
