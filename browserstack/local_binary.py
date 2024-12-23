@@ -3,15 +3,9 @@ from browserstack.bserrors import BrowserStackLocalError
 import gzip
 
 try:
-  import urllib.request
-
-  def urlopen(url, headers=None):
-    return urllib.request.urlopen(urllib.request.Request(url, headers=headers))
+  from urllib.request import urlopen
 except ImportError:
-  import urllib2
-      
-  def urlopen(url, headers=None):
-    return urllib2.urlopen(urllib2.Request(url, headers=headers))
+  from urllib2 import urlopen
 
 class LocalBinary:
   _version = None
