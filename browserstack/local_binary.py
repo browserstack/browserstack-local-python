@@ -1,29 +1,34 @@
 import platform, os, sys, stat, tempfile, re, subprocess
 from browserstack.bserrors import BrowserStackLocalError
+import gzip
 
 try:
-    from urllib.request import urlopen
+    from urllib.request import urlopen, Request
 except ImportError:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, Request
 
 class LocalBinary:
+  _version = None
+
   def __init__(self):
     is_64bits = sys.maxsize > 2**32
     self.is_windows = False
     osname = platform.system()
+    source_url = "https://www.browserstack.com/local-testing/downloads/binaries/"
+
     if osname == 'Darwin':
-      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-darwin-x64"
+      self.http_path = source_url + "BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if self.is_alpine():
-        self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-alpine"
+        self.http_path = source_url + "BrowserStackLocal-alpine"
       else:
         if is_64bits:
-          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-x64"
+          self.http_path = source_url + "BrowserStackLocal-linux-x64"
         else:
-          self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal-linux-ia32"
+          self.http_path = source_url + "BrowserStackLocal-linux-ia32"
     else:
       self.is_windows = True
-      self.http_path = "https://www.browserstack.com/local-testing/downloads/binaries/BrowserStackLocal.exe"
+      self.http_path = source_url + "BrowserStackLocal.exe"
 
     self.ordered_paths = [
       os.path.join(os.path.expanduser('~'), '.browserstack'),
@@ -32,11 +37,13 @@ class LocalBinary:
     ]
     self.path_index = 0
 
+  @staticmethod
+  def set_version(version):
+    LocalBinary._version = version
+
   def is_alpine(self):
-    grepOutput = subprocess.run("grep -w NAME /etc/os-release", capture_output=True, shell=True)
-    if grepOutput.stdout.decode('utf-8').find('Alpine') > -1:
-      return True
-    return False
+    response = subprocess.check_output(["grep", "-w", "NAME", "/etc/os-release"])
+    return response.decode('utf-8').find('Alpine') > -1
 
   def __make_path(self, dest_path):
     try:
@@ -57,11 +64,20 @@ class LocalBinary:
     raise BrowserStackLocalError('Error trying to download BrowserStack Local binary')
 
   def download(self, chunk_size=8192, progress_hook=None):
-    response = urlopen(self.http_path)
+    headers = {
+      'User-Agent': '/'.join(('browserstack-local-python', LocalBinary._version)),
+      'Accept-Encoding': 'gzip, *',
+    }
+
+    if sys.version_info < (3, 2):
+      # lack of support for gzip decoding for stream, response is expected to have a tell() method
+      headers.pop('Accept-Encoding', None)
+
+    response = urlopen(Request(self.http_path, headers=headers))
     try:
-      total_size = int(response.info().getheader('Content-Length').strip())
+      total_size = int(response.info().get('Content-Length', '').strip() or '0')
     except:
-      total_size = int(response.info().get_all('Content-Length')[0].strip())
+      total_size = int(response.info().get_all('Content-Length')[0].strip() or '0')
     bytes_so_far = 0
 
     dest_parent_dir = self.__available_dir()
@@ -69,21 +85,39 @@ class LocalBinary:
     if self.is_windows:
       dest_binary_name += '.exe'
 
+    content_encoding = response.info().get('Content-Encoding', '')
+    gzip_file = gzip.GzipFile(fileobj=response, mode='rb') if content_encoding.lower() == 'gzip' else None
+
+    if os.getenv('BROWSERSTACK_LOCAL_DEBUG_GZIP') and gzip_file:
+      print('using gzip in ' + headers['User-Agent'])
+
+    def read_chunk(chunk_size):
+      if gzip_file:
+        return gzip_file.read(chunk_size)
+      else:
+        return response.read(chunk_size)
+
     with open(os.path.join(dest_parent_dir, dest_binary_name), 'wb') as local_file:
       while True:
-        chunk = response.read(chunk_size)
+        chunk = read_chunk(chunk_size)
         bytes_so_far += len(chunk)
 
         if not chunk:
           break
 
-        if progress_hook:
+        if total_size > 0 and progress_hook:
           progress_hook(bytes_so_far, chunk_size, total_size)
 
         try:
           local_file.write(chunk)
         except:
           return self.download(chunk_size, progress_hook)
+    
+    if gzip_file:
+      gzip_file.close()
+    
+    if callable(getattr(response, 'close', None)):
+      response.close()
 
     final_path = os.path.join(dest_parent_dir, dest_binary_name)
     st = os.stat(final_path)
