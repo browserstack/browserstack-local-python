@@ -1,6 +1,7 @@
 import platform, os, sys, stat, tempfile, re, subprocess
 from browserstack.bserrors import BrowserStackLocalError
 import gzip
+import json
 
 try:
     from urllib.request import urlopen, Request
@@ -10,11 +11,13 @@ except ImportError:
 class LocalBinary:
   _version = None
 
-  def __init__(self):
+  def __init__(self, key, error_object=None):
+    self.key = key
+    self.error_object = error_object
     is_64bits = sys.maxsize > 2**32
     self.is_windows = False
     osname = platform.system()
-    source_url = "https://www.browserstack.com/local-testing/downloads/binaries/"
+    source_url = self.fetch_source_url() + '/'
 
     if osname == 'Darwin':
       self.http_path = source_url + "BrowserStackLocal-darwin-x64"
@@ -36,6 +39,31 @@ class LocalBinary:
       tempfile.gettempdir()
     ]
     self.path_index = 0
+
+  def fetch_source_url(self):
+    url = "https://local.browserstack.com/binary/api/v1/endpoint"
+    headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    }
+    data = {"auth_token": self.key}
+
+    if self.error_object is not None:
+      data["error_message"] = str(self.error_object)
+      headers["X-Local-Fallback-Cloudflare"] = "true"
+
+    req = Request(url, data=json.dumps(data).encode("utf-8"))
+    for key, value in headers.items():
+      req.add_header(key, value)
+
+    try:
+        with urlopen(req) as response:
+          resp_bytes = response.read()
+          resp_str = resp_bytes.decode('utf-8')
+          resp_json = json.loads(resp_str)
+          return resp_json["data"]["endpoint"]
+    except Exception as e:
+        raise BrowserStackLocalError('Error trying to fetch the source url for downloading the binary: {}'.format(e))
 
   @staticmethod
   def set_version(version):

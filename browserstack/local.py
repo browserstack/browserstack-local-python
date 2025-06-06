@@ -73,7 +73,12 @@ class Local:
       self.binary_path = self.options['binarypath']
       del self.options['binarypath']
     else:
-      self.binary_path = LocalBinary().get_binary()
+      l = LocalBinary(self.key)
+      try:
+        self.binary_path = l.get_binary()
+      except Exception as e:
+        l = LocalBinary(self.key, e)
+        self.binary_path = l.get_binary()
 
     if 'logfile' in self.options:
       self.local_logfile_path = self.options['logfile']
