@@ -89,7 +89,7 @@ class LocalBinary:
         return final_path
       else:
         self.path_index += 1
-    raise BrowserStackLocalError('Error trying to download BrowserStack Local binary')
+    raise BrowserStackLocalError('Error trying to download BrowserStack Local binary, exhausted user directories to download to.')
 
   def download(self, chunk_size=8192, progress_hook=None):
     headers = {
@@ -108,6 +108,7 @@ class LocalBinary:
       total_size = int(response.info().get_all('Content-Length')[0].strip() or '0')
     bytes_so_far = 0
 
+    # Limits retries to the number of directories
     dest_parent_dir = self.__available_dir()
     dest_binary_name = 'BrowserStackLocal'
     if self.is_windows:
