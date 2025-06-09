@@ -54,7 +54,6 @@ class Local:
     for o in self.options.keys():
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
-    print(">>> CMD : ", cmd)
     return cmd
 
   def _generate_stop_cmd(self):
