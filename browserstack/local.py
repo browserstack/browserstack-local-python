@@ -50,7 +50,7 @@ class Local:
     return version
 
   def _generate_cmd(self):
-    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, "-k", self.key, '--source', 'python:' + self.get_package_version(), '--bs-host "k8s-devlocal.bsstag.com"']
+    cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, "-k", self.key, '--source', 'python:' + self.get_package_version()]
     for o in self.options.keys():
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
@@ -102,7 +102,7 @@ class Local:
         output_string = err.decode()
 
       data = json.loads(output_string)
-      print(">>> DATA : ", data)
+
       if data['state'] != "connected":
         raise BrowserStackLocalError(data["message"]["message"])
       else:
