@@ -45,7 +45,7 @@ class LocalBinary:
     headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      'User-Agent': '/'.join(('browserstack-local-python', LocalBinary._version))
+      "User-Agent": '/'.join(('browserstack-local-python', LocalBinary._version))
     }
     data = {"auth_token": self.key}
 
