@@ -5,7 +5,7 @@ except ImportError:
 setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
-  version = '1.2.11',
+  version = '1.2.12',
   description = 'Python bindings for Browserstack Local',
   long_description=open('README.md').read(),
   long_description_content_type='text/markdown',

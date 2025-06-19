@@ -44,7 +44,8 @@ class LocalBinary:
     url = "https://local.browserstack.com/binary/api/v1/endpoint"
     headers = {
       "Content-Type": "application/json",
-      "Accept": "application/json"
+      "Accept": "application/json",
+      "User-Agent": '/'.join(('browserstack-local-python', LocalBinary._version))
     }
     data = {"auth_token": self.key}
 
