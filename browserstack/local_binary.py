@@ -157,7 +157,7 @@ class LocalBinary:
   def __verify_binary(self,path):
     try:
       binary_response = subprocess.check_output([path,"--version"]).decode("utf-8")
-      pattern = re.compile("BrowserStack Local version \d+\.\d+")
+      pattern = re.compile(r"BrowserStack Local version \d+\.\d+")
       return bool(pattern.match(binary_response))
     except:
       return False
