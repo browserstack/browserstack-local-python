@@ -24,6 +24,8 @@ class LocalBinary:
     elif osname == 'Linux':
       if self.is_alpine():
         self.http_path = source_url + "BrowserStackLocal-alpine"
+      elif platform.machine() == 'aarch64':
+        self.http_path = source_url + "BrowserStackLocal-linux-arm64"
       else:
         if is_64bits:
           self.http_path = source_url + "BrowserStackLocal-linux-x64"
