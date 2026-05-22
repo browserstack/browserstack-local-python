@@ -1,4 +1,4 @@
-import subprocess, os, time, json,logging
+import subprocess, os, time, json, logging, re
 import psutil
 
 from browserstack.local_binary import LocalBinary
@@ -70,7 +70,16 @@ class Local:
       del self.options['key']
 
     if 'binarypath' in self.options:
-      self.binary_path = self.options['binarypath']
+      candidate = os.path.realpath(self.options['binarypath'])
+      if not os.path.isfile(candidate):
+        raise BrowserStackLocalError('binarypath does not point to a file')
+      try:
+        version_output = subprocess.check_output([candidate, '--version']).decode('utf-8')
+      except (subprocess.SubprocessError, OSError) as e:
+        raise BrowserStackLocalError('binarypath failed verification: {}'.format(e))
+      if not re.match(r'BrowserStack Local version \d+\.\d+', version_output):
+        raise BrowserStackLocalError('binarypath failed verification')
+      self.binary_path = candidate
       del self.options['binarypath']
     else:
       l = LocalBinary(self.key)
