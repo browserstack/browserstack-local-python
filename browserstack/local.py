@@ -93,7 +93,14 @@ class Local:
     self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = self.proc.communicate()
 
-    os.system('echo "" > "'+ self.local_logfile_path +'"')
+    logfile_dir = os.path.dirname(self.local_logfile_path)
+    if logfile_dir:
+        os.makedirs(logfile_dir, exist_ok=True)
+    try:
+        with open(self.local_logfile_path, 'w') as f:
+            f.write('')
+    except OSError as e:
+        raise BrowserStackLocalError('Unable to open logfile: {}'.format(e))
     try:
       if out:
         output_string = out.decode()
