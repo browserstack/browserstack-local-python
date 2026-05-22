@@ -16,7 +16,7 @@ setup(
   keywords = ['BrowserStack', 'Local', 'selenium', 'testing'],
   classifiers = [],
   install_requires=[
-        'psutil',
+        'psutil>=5.6.6,<7',
   ],
 )
 
