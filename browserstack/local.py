@@ -74,10 +74,10 @@ class Local:
       if not os.path.isfile(candidate):
         raise BrowserStackLocalError('binarypath does not point to a file')
       try:
-        version_output = subprocess.check_output([candidate, '--version']).decode('utf-8')
+        version_output = subprocess.check_output([candidate, '--version'], timeout=10).decode('utf-8')
       except (subprocess.SubprocessError, OSError) as e:
         raise BrowserStackLocalError('binarypath failed verification: {}'.format(e))
-      if not re.match(r'BrowserStack Local version \d+\.\d+', version_output):
+      if not re.match(LocalBinary.VERSION_REGEX, version_output):
         raise BrowserStackLocalError('binarypath failed verification')
       self.binary_path = candidate
       del self.options['binarypath']
@@ -99,9 +99,6 @@ class Local:
     if 'source' in self.options:
       del self.options['source']
 
-    self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    (out, err) = self.proc.communicate()
-
     logfile_dir = os.path.dirname(self.local_logfile_path)
     if logfile_dir:
         os.makedirs(logfile_dir, exist_ok=True)
@@ -110,6 +107,10 @@ class Local:
             f.write('')
     except OSError as e:
         raise BrowserStackLocalError('Unable to open logfile: {}'.format(e))
+
+    self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    (out, err) = self.proc.communicate()
+
     try:
       if out:
         output_string = out.decode()
