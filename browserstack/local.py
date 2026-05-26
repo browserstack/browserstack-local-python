@@ -10,6 +10,71 @@ try:
 except:
     import pkg_resources
 
+# LOC-6719 / INJ-002 (CWE-88): kwargs are forwarded to the BrowserStackLocal
+# binary as flags. Without this allowlist an attacker-influenced kwarg can
+# inject arbitrary flags — notably proxyHost / proxyPort / forceproxy to
+# redirect tunnel traffic through an attacker-controlled proxy.
+#
+# Cross-referenced against the binary's COMMAND_CONFIGURATION table
+# (browserStackTunnel/extensions/node/config/constants.js) and the public docs
+# at https://www.browserstack.com/docs/local-testing/binary-params. Both the
+# camelCase form ('name') and the kebab-case form ('alias') are accepted
+# because user code passes both shapes. Internal-only flags (visible:false:
+# region, bsHost, customRepeater, enterprise, public-interface-services,
+# identifier, trusted-hosts), help/version flags, and undocumented internal
+# flags (-r, -skipCheck, -daemonInstance, -tunnelIdentifier, -uniqueIdentifier)
+# are intentionally excluded.
+#
+# Wrapper-managed keys (key, binarypath, logfile, source) are stripped from
+# self.options in start() before this check runs and are not listed here.
+# 'daemon' / 'logFile' are also omitted because they are emitted unconditionally
+# by _generate_cmd and a user-supplied duplicate would conflict.
+ALLOWED_OPTIONS = frozenset({
+    # Verbose / logging
+    'v', 'vv', 'vvv', 'verbose',
+    'enableLoggingForAPI', 'enable-logging-for-api',
+    'enableUTCLogging', 'enable-utc-logging',
+    # Folder testing
+    'f', 'folder',
+    # Force / start behaviour
+    'force', 'F',
+    'forcelocal', 'force-local', 'forceLocal',
+    'forceproxy', 'force-proxy', 'forceProxy',
+    'onlyAutomate', 'only-automate',
+    # Host targeting / restriction
+    'only',
+    'include-hosts', 'exclude-hosts',
+    'localIdentifier', 'local-identifier',
+    'parallelRuns', 'parallel-runs',
+    # Corporate proxy
+    'proxyHost', 'proxy-host',
+    'proxyPort', 'proxy-port',
+    'proxyUser', 'proxy-user',
+    'proxyPass', 'proxy-pass',
+    'disableProxyDiscovery', 'disable-proxy-discovery',
+    # Local proxy
+    'localProxyHost', 'local-proxy-host',
+    'localProxyPort', 'local-proxy-port',
+    'localProxyUser', 'local-proxy-user',
+    'localProxyPass', 'local-proxy-pass',
+    # PAC / HTTPS / protocol
+    'pacFile', 'pac-file',
+    'https-ports',
+    'client-protocol',
+    # CA certificates
+    'useCaCertificate', 'use-ca-certificate',
+    'useSystemInstalledCa', 'use-system-installed-ca',
+    # NTLM proxy
+    'ntlm-username', 'ntlm-password', 'ntlm-domain', 'ntlm-workstation',
+    # Dashboard / misc
+    'disableDashboard', 'disable-dashboard',
+    'config-file',
+    'no-container',
+    'connect-timeout',
+    'timeout',
+    'debug-utility', 'debug-url',
+})
+
 class Local:
   def __init__(self, key=None, binary_path=None, **kwargs):
     self.key = os.environ['BROWSERSTACK_ACCESS_KEY'] if 'BROWSERSTACK_ACCESS_KEY' in os.environ else key
@@ -52,6 +117,8 @@ class Local:
   def _generate_cmd(self):
     cmd = [self.binary_path, '-d', 'start', '-logFile', self.local_logfile_path, "-k", self.key, '--source', 'python:' + self.get_package_version()]
     for o in self.options.keys():
+      if o not in ALLOWED_OPTIONS:
+        raise BrowserStackLocalError('Unknown option: {}'.format(o))
       if self.options.get(o) is not None:
         cmd = cmd + self.__xstr(o, self.options.get(o))
     return cmd
