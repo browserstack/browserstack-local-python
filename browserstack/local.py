@@ -1,4 +1,4 @@
-import subprocess, os, time, json,logging
+import subprocess, os, time, json, logging, re
 import psutil
 
 from browserstack.local_binary import LocalBinary
@@ -70,7 +70,16 @@ class Local:
       del self.options['key']
 
     if 'binarypath' in self.options:
-      self.binary_path = self.options['binarypath']
+      candidate = os.path.realpath(self.options['binarypath'])
+      if not os.path.isfile(candidate):
+        raise BrowserStackLocalError('binarypath does not point to a file')
+      try:
+        version_output = subprocess.check_output([candidate, '--version'], timeout=10).decode('utf-8')
+      except (subprocess.SubprocessError, OSError) as e:
+        raise BrowserStackLocalError('binarypath failed verification: {}'.format(e))
+      if not re.match(LocalBinary.VERSION_REGEX, version_output):
+        raise BrowserStackLocalError('binarypath failed verification')
+      self.binary_path = candidate
       del self.options['binarypath']
     else:
       l = LocalBinary(self.key)
@@ -90,10 +99,18 @@ class Local:
     if 'source' in self.options:
       del self.options['source']
 
+    logfile_dir = os.path.dirname(self.local_logfile_path)
+    if logfile_dir:
+        os.makedirs(logfile_dir, exist_ok=True)
+    try:
+        with open(self.local_logfile_path, 'w') as f:
+            f.write('')
+    except OSError as e:
+        raise BrowserStackLocalError('Unable to open logfile: {}'.format(e))
+
     self.proc = subprocess.Popen(self._generate_cmd(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = self.proc.communicate()
 
-    os.system('echo "" > "'+ self.local_logfile_path +'"')
     try:
       if out:
         output_string = out.decode()

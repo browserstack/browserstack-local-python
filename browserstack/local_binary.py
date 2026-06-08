@@ -9,6 +9,7 @@ except ImportError:
     from urllib2 import urlopen, Request
 
 class LocalBinary:
+  VERSION_REGEX = r"BrowserStack Local version \d+\.\d+"
   _version = None
 
   def __init__(self, key, error_object=None):
@@ -159,8 +160,7 @@ class LocalBinary:
   def __verify_binary(self,path):
     try:
       binary_response = subprocess.check_output([path,"--version"]).decode("utf-8")
-      pattern = re.compile("BrowserStack Local version \d+\.\d+")
-      return bool(pattern.match(binary_response))
+      return bool(re.match(LocalBinary.VERSION_REGEX, binary_response))
     except:
       return False
 

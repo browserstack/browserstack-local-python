@@ -5,7 +5,7 @@ except ImportError:
 setup(
   name = 'browserstack-local',
   packages = ['browserstack'],
-  version = '1.2.14',
+  version = '1.2.15',
   description = 'Python bindings for Browserstack Local',
   long_description=open('README.md').read(),
   long_description_content_type='text/markdown',
@@ -16,7 +16,7 @@ setup(
   keywords = ['BrowserStack', 'Local', 'selenium', 'testing'],
   classifiers = [],
   install_requires=[
-        'psutil',
+        'psutil>=5.6.6,<7',
   ],
 )
 
