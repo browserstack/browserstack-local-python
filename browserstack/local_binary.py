@@ -16,6 +16,10 @@ class LocalBinary:
   ALLOWED_DOWNLOAD_HOSTS = ("browserstack.com",)
   ALLOWED_DOWNLOAD_HOST_SUFFIXES = (".browserstack.com",)
 
+  # Each guard below covers a case the final host-match check does not:
+  #   - urlparse takes (url or "") so a None or empty URL becomes empty; downstream guards then catch it.
+  #   - HTTPS check: allowlist matches host only; without this, http://browserstack.com would pass.
+  #   - empty host: hostname is None/empty for missing URL or URLs like https:///foo; surface a clear error.
   @staticmethod
   def _validate_source_url(url):
     parsed = urlparse(url or "")
