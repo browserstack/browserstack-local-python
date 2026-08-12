@@ -5,12 +5,38 @@ import json
 
 try:
     from urllib.request import urlopen, Request
+    from urllib.parse import urlparse
 except ImportError:
     from urllib2 import urlopen, Request
+    from urlparse import urlparse
 
 class LocalBinary:
   VERSION_REGEX = r"BrowserStack Local version \d+\.\d+"
   _version = None
+  ALLOWED_DOWNLOAD_HOSTS = ("browserstack.com",)
+  ALLOWED_DOWNLOAD_HOST_SUFFIXES = (".browserstack.com",)
+
+  # Each guard below covers a case the final host-match check does not:
+  #   - urlparse takes (url or "") so a None or empty URL becomes empty; downstream guards then catch it.
+  #   - HTTPS check: allowlist matches host only; without this, http://browserstack.com would pass.
+  #   - empty host: hostname is None/empty for missing URL or URLs like https:///foo; surface a clear error.
+  @staticmethod
+  def _validate_source_url(url):
+    parsed = urlparse(url or "")
+    if parsed.scheme != "https":
+      raise BrowserStackLocalError(
+        "Refusing binary download from non-HTTPS source URL")
+    host = (parsed.hostname or "").lower()
+    if not host:
+      raise BrowserStackLocalError(
+        "Refusing binary download: source URL has no host")
+    if host in LocalBinary.ALLOWED_DOWNLOAD_HOSTS:
+      return url
+    for suffix in LocalBinary.ALLOWED_DOWNLOAD_HOST_SUFFIXES:
+      if host.endswith(suffix):
+        return url
+    raise BrowserStackLocalError(
+      "Refusing binary download: host '{}' is not in the allowed host list".format(host))
 
   def __init__(self, key, error_object=None):
     self.key = key
@@ -65,7 +91,9 @@ class LocalBinary:
           resp_bytes = response.read()
           resp_str = resp_bytes.decode('utf-8')
           resp_json = json.loads(resp_str)
-          return resp_json["data"]["endpoint"]
+          return self._validate_source_url(resp_json["data"]["endpoint"])
+    except BrowserStackLocalError:
+        raise
     except Exception as e:
         raise BrowserStackLocalError('Error trying to fetch the source url for downloading the binary: {}'.format(e))
 
