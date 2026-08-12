@@ -3,10 +3,14 @@ from browserstack.local import Local, BrowserStackLocalError
 
 class TestLocal(unittest.TestCase):
   def setUp(self):
-    self.local = Local(os.environ['BROWSERSTACK_ACCESS_KEY'])
+    access_key = os.environ.get('BROWSERSTACK_ACCESS_KEY')
+    if not access_key:
+      self.skipTest('BROWSERSTACK_ACCESS_KEY is not set; skipping live BrowserStack Local tests')
+    self.local = Local(access_key)
 
   def tearDown(self):
-    self.local.stop()
+    if hasattr(self, 'local'):
+      self.local.stop()
 
   def test_start_local(self):
     self.local.start()
