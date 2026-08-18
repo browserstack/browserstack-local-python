@@ -21,7 +21,10 @@ class LocalBinary:
     source_url = self.fetch_source_url() + '/'
 
     if osname == 'Darwin':
-      self.http_path = source_url + "BrowserStackLocal-darwin-x64"
+      if platform.machine() in ('arm64', 'aarch64'):
+        self.http_path = source_url + "BrowserStackLocal-darwin-arm64"
+      else:
+        self.http_path = source_url + "BrowserStackLocal-darwin-x64"
     elif osname == 'Linux':
       if self.is_alpine():
         self.http_path = source_url + "BrowserStackLocal-alpine"
